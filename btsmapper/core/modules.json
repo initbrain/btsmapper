@@ -1,0 +1,50 @@
+{
+    "Python BTS Mapper":
+        [
+            {
+                "name": "Carthographie",
+                "dependency":
+                    [
+                        {
+                            "name": "osmgpsmap",
+                            "homepage":
+                                [
+                                    "http://nzjrs.github.com/osm-gps-map/"
+                                ],
+                            "doc":
+                                [
+                                    "http://nzjrs.github.com/osm-gps-map/docs/reference/html/index.html"
+                                ],
+                            "install":
+                                [
+                                    {
+                                        "type": "apt-get",
+                                        "target": "python-osmgpsmap",
+                                        "tested":
+                                            [
+                                                "ubuntu 12.10",
+                                                "xubuntu 12.10"
+                                            ]
+                                    },
+                                    {
+                                        "type": "yum",
+                                        "target": "python-osmgpsmap",
+                                        "tested":
+                                            [
+                                                "Fedora 18 Live Security (lxde)"
+                                            ]
+                                    },
+                                    {
+                                        "type": "source",
+                                        "target": "http://github.com/nzjrs/osm-gps-map/tarball/master",
+                                        "tested":
+                                            [
+                                                ""
+                                            ]
+                                    }
+                                ]
+                        }
+                    ]
+            }
+        ]
+}
