@@ -6,4 +6,4 @@ Installation ($: user, #: root):
 	$ git clone https://github.com/initbrain/btsmapper.git
 	$ cd btsmapper/
 	# python setup.py install
-	$ btsmapper
+	# btsmapper
