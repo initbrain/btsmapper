@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import time
+from time import mktime, localtime, sleep
 
 from btsmapper.core.constants import BTSMAPPER_PATH
 
 from peewee import SqliteDatabase, Model, RawQuery
-from peewee import CharField, IntegerField, FloatField
+from peewee import CharField, IntegerField, FloatField, BooleanField
 from peewee import ForeignKeyField
 
 
-class RSSdb(SqliteDatabase):
+class BTSdb(SqliteDatabase):
     """
     SQLite database object.
     """
     def connect(self):
-        super(RSSdb, self).connect()
+        super(BTSdb, self).connect()
         pragma = RawQuery(BaseModel, "PRAGMA foreign_keys = ON;")
         self.execute(pragma)
 
@@ -24,7 +24,7 @@ class BaseModel(Model):
     Basic database model, uses RSSdb as the database object.
     """
     class Meta:
-        database = RSSdb("%s/core/results.db" % BTSMAPPER_PATH, check_same_thread=False)
+        database = BTSdb("%s/core/results.db" % BTSMAPPER_PATH, check_same_thread=False)
 
 
 class BTS(BaseModel):
@@ -38,7 +38,8 @@ class BTS(BaseModel):
     mcc = CharField(max_length=256, null=True)
     mnc = CharField(max_length=256, null=True)
     lac = CharField(max_length=256, null=True)
-    date = IntegerField(default=int(time.mktime(time.localtime())))
+    date = IntegerField(default=int(mktime(localtime())))
+    mapped = BooleanField(default=False)
 
     def __str__(self):
         return "<BTS '%s (%f:%f)'>" % (self.op, self.lon, self.lat)
@@ -48,13 +49,45 @@ class BTS(BaseModel):
     #     for email in self.emails:
     #         deleted += email.delete_instance()
     #     return deleted
-    #
-    # @classmethod
-    # def get_by_url(cls, url):
-    #     return cls.select().where(
-    #         cls.url == url
-    #     ).get()
-    #
+
+    @classmethod
+    def get_already_mapped(cls):
+        try:
+            query = cls.select().where(
+                cls.mapped == True
+            )
+        except BTS.DoesNotExist as err:
+            return False #sleep(3)
+        else:
+            return query
+
+    @classmethod
+    def get_non_mapped(cls):
+        while True:
+            try:
+                query = cls.select().where(
+                    cls.mapped == False
+                )
+                query.get()
+            except BTS.DoesNotExist as err:
+                sleep(3)
+            else:
+                return query
+
+    @classmethod
+    def if_already_mapped(cls, lon, lat):
+        while True:
+            try:
+                query = cls.select().where(
+                    cls.lon == lon,
+                    cls.lat == lat,
+                    cls.mapped == True
+                ).get()
+            except BTS.DoesNotExist as err:
+                return False
+            else:
+                return query
+
     # @classmethod
     # def get_by_id(cls, id):
     #     return cls.select().where(
