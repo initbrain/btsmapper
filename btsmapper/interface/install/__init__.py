@@ -213,7 +213,7 @@ class install():
                                     break
 
                         if x == 'apt-get' and x == packageInstaller:
-                            self.agProcess = subprocess.Popen(['apt-get', 'install'] + target, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            self.agProcess = subprocess.Popen(['apt-get', 'install', '-y'] + target, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                             while True:
                                 err = self.agProcess.stderr.readline().rstrip('\n')
                                 if err:
