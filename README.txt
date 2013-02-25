@@ -2,7 +2,7 @@ Python BTS Mapper
 GNU General Public License v3.0 - http://www.gnu.org/licenses/gpl-3.0.txt
 
 Screenshot :
-    http://img46.imageshack.us/img46/9682/capturedu20130225140944.png
+    https://github.com/initbrain/btsmapper/blob/master/btsmapper/images/screenshot.png
 
 Installation ($: user, #: root):
 	# apt-get install git python-setuptools python-pip
