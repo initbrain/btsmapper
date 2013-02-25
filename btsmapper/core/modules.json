@@ -84,6 +84,30 @@
                 "dependency":
                     [
                         {
+                            "name": "peewee",
+                            "type": "lib",
+                            "homepage":
+                                [
+                                    ""
+                                ],
+                            "doc":
+                                [
+                                    ""
+                                ],
+                            "install":
+                                [
+                                    {
+                                        "type": "pip",
+                                        "target": "peewee",
+                                        "tested":
+                                            [
+                                                "ubuntu 12.10",
+                                                "xubuntu 12.10"
+                                            ]
+                                    }
+                                ]
+                        },
+                        {
                             "name": "osmgpsmap",
                             "type": "lib",
                             "homepage":
