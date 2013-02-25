@@ -9,6 +9,7 @@ import os.path
 import gtk.gdk
 import gobject
 from time import sleep
+from datetime import datetime
 
 try:
     from commands import getoutput, getstatusoutput
@@ -18,6 +19,7 @@ except ImportError:
 try: import thread
 except ImportError: import_error+="\nthread"
 
+from btsmapper.core.db import BTS
 from btsmapper.core.constants import BTSMAPPER_PATH
 
 gobject.threads_init()
@@ -57,7 +59,7 @@ gobject.type_register(DummyLayer)
 
 class UI(gtk.Window):
     def quitDialog(self, widget, data):
-        if self.yesnoDialog("Voulez-vous vraiment quitter\nFree-knowledge Python BTS Mapper ?"):
+        if self.yesnoDialog("Do you really want to exit\nFree-knowledge Python BTS Mapper ?"):
             delete()
         else:
             return 1
@@ -80,6 +82,15 @@ class UI(gtk.Window):
         elif reponse == gtk.RESPONSE_NO:
             return 0
 
+    def msgbox(self, message, type_msg=0):
+        msgb = gtk.MessageDialog(None,
+                                  gtk.DIALOG_MODAL,
+                                  gtk.MESSAGE_WARNING if type_msg else gtk.MESSAGE_INFO,
+                                  gtk.BUTTONS_OK,
+                                  message)
+        msgb.run() # Affichage de la boite de message
+        msgb.destroy() # Destruction de la boite de message
+
     def locHistory(self, parent):
         try:
             lon = self.liststore_geoloc.get_value(self.treeview_sortie_geoloc.get_selection().get_selected()[1],2)
@@ -92,7 +103,7 @@ class UI(gtk.Window):
     def __init__(self):
         self.fenetre = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.fenetre.set_resizable(True)            # Autoriser le redimensionnement de la fenêtre
-        self.fenetre.set_title("Free-knowledge Python BTS Mapper")    # Titre de la fenêtre
+        self.fenetre.set_title("Python BTS Mapper - Free-knowledge")    # Titre de la fenêtre
         #self.fenetre.set_decorated(False)            # Cacher les contours de la fenêtre
         self.fenetre.set_icon_from_file("%s/images/icone.png" % BTSMAPPER_PATH)    # Spécifie une icône
         self.fenetre.set_position(gtk.WIN_POS_CENTER)        # Centrer la fenêtre au lancement
@@ -149,7 +160,8 @@ class UI(gtk.Window):
         gobject.timeout_add(500, self.print_tiles)
         self.osm.set_center_and_zoom(46.227638, 2.213749, 5) # Centrer sur la France
 
-        ex = gtk.Expander("<b>Historique</b>")
+        ex = gtk.Expander("<b>History</b>")
+        ex.set_expanded(True)
         ex.props.use_markup = True
 
         vb = gtk.VBox()
@@ -169,8 +181,8 @@ class UI(gtk.Window):
         # self.treeasview_sortie_geoloc
         self.treeview_sortie_geoloc = gtk.TreeView(self.liststore_geoloc)
         self.treeview_sortie_geoloc.set_rules_hint(True)
-        self.treeview_sortie_geoloc.append_column(gtk.TreeViewColumn("Heure", gtk.CellRendererText(), text=0))
-        self.treeview_sortie_geoloc.append_column(gtk.TreeViewColumn("Opérateur", gtk.CellRendererText(), text=1))
+        self.treeview_sortie_geoloc.append_column(gtk.TreeViewColumn("Discovered", gtk.CellRendererText(), text=0))
+        self.treeview_sortie_geoloc.append_column(gtk.TreeViewColumn("Telecoms company", gtk.CellRendererText(), text=1))
         self.treeview_sortie_geoloc.append_column(gtk.TreeViewColumn("Longitude", gtk.CellRendererText(), text=2))
         self.treeview_sortie_geoloc.append_column(gtk.TreeViewColumn("Latitude", gtk.CellRendererText(), text=3))
         self.treeview_sortie_geoloc.append_column(gtk.TreeViewColumn("Cell Identity", gtk.CellRendererText(), text=4))
@@ -197,7 +209,7 @@ class UI(gtk.Window):
         boite2_geoloc.show()
 
         # self.btn_geoloc
-        self.btn_geoloc = gtk.Button("Lancer l'analyse")
+        self.btn_geoloc = gtk.Button("Monitor broadcast messages")
         self.btn_geoloc.set_size_request(int(self.btn_geoloc.size_request()[0]*1.2),self.btn_geoloc.size_request()[1])
         # self.btn_geoloc.connect('clicked', lambda e: thread.start_new_thread(self.geoloc, ()))
         self.btn_geoloc.connect('clicked', lambda e: thread.start_new_thread(self.debug_clicked, ()))
@@ -205,17 +217,17 @@ class UI(gtk.Window):
         self.btn_geoloc.show()
 
         # self.btn2_geoloc
-        self.btn2_geoloc = gtk.Button("Resize term")
+        self.btn2_geoloc = gtk.Button("kill gammu")
         self.btn2_geoloc.set_size_request(int(self.btn2_geoloc.size_request()[0]*1.2),self.btn2_geoloc.size_request()[1])
         self.statuGeolocLoop = False
         # self.btn2_geoloc.connect('clicked', lambda e: thread.start_new_thread(self.geolocLoop, ()))
-        self.btn2_geoloc.connect('clicked', lambda e: self.fenetre.set_size_request(1000, 500))#.set_size(80, 24))
+        self.btn2_geoloc.connect('clicked', lambda e: self.killall_gammu())#.set_size(80, 24))
         boite2_geoloc.pack_start(self.btn2_geoloc, False, False, 0)
         self.btn2_geoloc.show()
 
     def print_tiles(self):
-        if self.osm.props.tiles_queued != 0:
-            print self.osm.props.tiles_queued, 'tiles queued'
+        # if self.osm.props.tiles_queued != 0:
+        #     print self.osm.props.tiles_queued, 'tiles queued'
         return True
 
     def zoom_in_clicked(self, button):
@@ -226,31 +238,21 @@ class UI(gtk.Window):
 
     def debug_clicked(self):
     #	self.osm.set_center_and_zoom(50.27, 3.97, 12)
-
-        import subprocess, re, urllib
-        from os import system
-        from time import strftime, localtime
-
+        # Vérification des permissions
         if os.geteuid() != 0:
-            # Vérification des permissions
             for su_gui_cmd in ['gksu','kdesu','ktsuss','beesu','']:
                 if getoutput("which "+su_gui_cmd):
                     break
             if not su_gui_cmd:
-                about = gtk.MessageDialog(None,
-                                          gtk.DIALOG_MODAL,
-                                          gtk.MESSAGE_WARNING,
-                                          gtk.BUTTONS_OK,
-                                          "Un des outils suivant est nécessaire pour acquérir les droits administrateur, veuillez en installer un :\n" +\
-                                          "\n" + \
-                                          "gksu\n" + \
-                                          "kdesu\n" + \
-                                          "ktsuss\n" + \
-                                          "beesu")
-                gtk.gdk.threads_enter()
-                about.run() # Affichage de la boite de message
-                about.destroy() # Destruction de la boite de message
-                gtk.gdk.threads_leave()
+                # gtk.gdk.threads_enter()
+                self.msgbox("Un des outils suivant est nécessaire pour acquérir les droits administrateur, veuillez en installer un :\n" + \
+                            "\n" + \
+                            "gksu\n" + \
+                            "kdesu\n" + \
+                            "ktsuss\n" + \
+                            "beesu",
+                            type_msg=1)
+                # gtk.gdk.threads_leave()
             else:
                 self.vterm.fork_command()
                 self.vterm.set_color_foreground(self.foreground)
@@ -262,66 +264,90 @@ class UI(gtk.Window):
             self.vterm.set_color_background(self.background)
             self.vterm.feed_child("%s %s/interface/cli/__init__.py\n" % (sys.executable, BTSMAPPER_PATH))
 
-            # while True:
-            #     stdoutVterm = self.vterm.get_text()
-            #     if not stdoutVterm:
-            #         sleep(1)
+            btsObj = BTS.get_already_mapped()
+            if btsObj and len(list(btsObj)) >= 1:
+                for x in btsObj:
+                    if 'sfr' in x.op.lower():
+                        pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/sfr.png" % BTSMAPPER_PATH, 24,24)
+                    elif 'orange' in x.op.lower():
+                        pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/orange.png" % BTSMAPPER_PATH, 24,24)
+                    else:
+                        pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/bts.png" % BTSMAPPER_PATH, 24,24)
+                    self.osm.image_add(x.lon, x.lat, pb)
+                    # ajouter à l'historique
+                    self.liststore_geoloc.append([datetime.fromtimestamp(x.date), x.op, x.lon, x.lat, x.cid, x.mcc, x.mnc, x.lac])
 
-            # print "\n"+strftime('%H:%M:%S', localtime())
-            # out=re.search("Inform : \[([\d\w ]*)\]", out, re.MULTILINE).groups()[0]
-            # print out
-            #
-            # cid="".join(out.split()[2:4])
-            # print "Cell Identity : "+cid
-            #
-            # mcc="".join(x[::-1].replace("f","") for x in out.split()[4:6])
-            # print "Mobile Country Code : "+mcc
-            #
-            # mnc=out.split()[6]
-            # print "Mobile Network Code : "+mnc
-            #
-            # lac="".join(out.split()[7:9])
-            # print "Location Area Code : "+lac
-            #
-            # if mcc+mnc in operateur:
-            #     op = operateur[mcc+mnc]
-            #     print "Opérateur : "+operateur[mcc+mnc]
-            #     if 'sfr' in operateur[mcc+mnc].lower():
-            #         pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/sfr.png" % BTSMAPPER_PATH, 24,24)
-            #     elif 'orange' in operateur[mcc+mnc].lower():
-            #         pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/orange.png" % BTSMAPPER_PATH, 24,24)
-            #     else:
-            #         pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/bts.png" % BTSMAPPER_PATH, 24,24)
-            # else:
-            #     op = '?'
-            #     print "Opérateur inconnu"
-            #     pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/bts.png" % BTSMAPPER_PATH, 24,24)
-            #
-            # cid,lac,mnc=[int(cid,16),int(lac,16),int(mnc)]
-            # a = "000E00000000000000000000000000001B0000000000000000000000030000"
-            # b = hex(cid)[2:].zfill(8) + hex(lac)[2:].zfill(8)
-            # c = hex(divmod(mnc,100)[1])[2:].zfill(8) + hex(divmod(mnc,100)[0])[2:].zfill(8)
-            # string = (a + b + c + "FFFFFFFF00000000").decode("hex")
-            #
-            # r=urllib.urlopen("http://www.google.com/glm/mmap",string).read().encode("hex")
-            # if len(r) > 14: lon,lat=float(int(r[14:22],16))/1000000,float(int(r[22:30],16))/1000000
-            #
-            # print "Coordonnées : %f:%f" % (lon, lat)
-            #
-            # try:
-            #     self.osm.image_add(lon, lat, pb)
-            #     # self.osm.set_center_and_zoom(lon, lat, 16)
-            # except Exception as err:
-            #     print "Erreur : %s" % err
-            # else:
-            #     self.liststore_geoloc.append([strftime("%H:%M:%S", localtime()), op, str(lon), str(lat), cid, mcc, mnc, lac])
-            #     # if not self.statuGeolocLoop:
-            #     #     self.btn_geoloc.set_label("Lancer une seule fois")
-            #     #     self.btn_geoloc.set_sensitive(True)
-            #     # else:
-            #     #     self.btn_geoloc.set_label("Analyse en cours...")
-            #     # self.osm.image_add(lon,lat,pb)
-            #     #			self.osm.set_center_and_zoom(lon, lat, 12)
+            while True:
+                btsObj = BTS.get_non_mapped()
+                if btsObj and len(list(btsObj)) >= 1:
+                    # Si bts en attente & au moin 1
+                    for x in btsObj:
+                        # Pour chaque bts
+                        try:
+                            # Ajouter à l'historique
+                            self.liststore_geoloc.append([datetime.fromtimestamp(x.date), x.op, x.lon, x.lat, x.cid, x.mcc, x.mnc, x.lac])
+                            if 'sfr' in x.op.lower():
+                                # Si opérateur SFR
+                                pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/sfr.png" % BTSMAPPER_PATH, 24,24)
+                            elif 'orange' in x.op.lower():
+                                # Sinon si opréateur ORANGE
+                                pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/orange.png" % BTSMAPPER_PATH, 24,24)
+                            else:
+                                # Sinon opérateur INCONNU
+                                pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/bts.png" % BTSMAPPER_PATH, 24,24)
+                            # Ajout sur la map
+                            self.osm.image_add(x.lon, x.lat, pb)
+                            # Centrer et zommer sur bts
+                            # Self.osm.set_center_and_zoom(lon, lat, 16)
+                            # Maquer comme mappé dans la db
+                            x.mapped = True
+                            x.save()
+                        except Exception as err:
+                            print "Erreur : %s" % err
+
+    def killall_gammu(self):
+        # Vérification des permissions
+        if os.geteuid() != 0:
+            for su_gui_cmd in ['gksu','kdesu','ktsuss','beesu','']:
+                if getoutput("which "+su_gui_cmd):
+                    break
+            if not su_gui_cmd:
+                # gtk.gdk.threads_enter()
+                self.msgbox("Un des outils suivant est nécessaire pour acquérir les droits administrateur, veuillez en installer un :\n" + \
+                            "\n" + \
+                            "gksu\n" + \
+                            "kdesu\n" + \
+                            "ktsuss\n" + \
+                            "beesu",
+                            type_msg=1)
+                # gtk.gdk.threads_leave()
+            else:
+                try:
+                    os.system("%s 'killall gammu'" % su_gui_cmd)
+                    # print "[+] Killing gammu process"
+                    # gtk.gdk.threads_enter()
+                    self.msgbox("Gammu process killed",
+                                type_msg=0)
+                    # gtk.gdk.threads_leave()
+                except:
+                    # print "[!] Gammu process still running"
+                    # gtk.gdk.threads_enter()
+                    self.msgbox("Gammu process still running",
+                                type_msg=1)
+                    # gtk.gdk.threads_leave()
+        else:
+            try:
+                os.system("killall gammu")
+                # print "[+] Killing gammu process"
+                # gtk.gdk.threads_enter()
+                self.msgbox("Gammu process killed",
+                            type_msg=0)
+                # gtk.gdk.threads_leave()
+            except:
+                # gtk.gdk.threads_enter()
+                self.msgbox("Gammu process still running",
+                            type_msg=1)
+                # gtk.gdk.threads_leave()
 
     def cache_clicked(self, button):
         bbox = self.osm.get_bbox()
