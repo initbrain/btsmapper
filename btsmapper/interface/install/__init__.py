@@ -198,7 +198,23 @@ class install():
                                     break
 
                         if x == 'pip':
-                            self.pipProcess = subprocess.Popen(['pip', 'install'] + target, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            packageInstallers = [
+                                'pip',
+                                'pip-python',
+                                ''
+                            ]
+
+                            for packageInstaller in [y.split(' ')[0] for y in packageInstallers]:
+                                checkRes = getoutput("which " + packageInstaller)
+                                if checkRes and not "no %s" % packageInstaller in checkRes:
+                                    break
+
+                            if packageInstaller:
+                                print "--> votre gestionnaire de paquet est : %s" % packageInstaller
+                            else:
+                                print "--> impossible de déterminer votre gestionnaire de paquet"
+
+                            self.pipProcess = subprocess.Popen([packageInstaller, 'install'] + target, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                             while True:
                                 err = self.pipProcess.stderr.readline().rstrip('\n')
                                 if err:

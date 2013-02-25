@@ -98,11 +98,12 @@
                                 [
                                     {
                                         "type": "pip",
-                                        "target": "peewee",
+                                        "target": "peewee==2.0.4",
                                         "tested":
                                             [
                                                 "ubuntu 12.10",
-                                                "xubuntu 12.10"
+                                                "xubuntu 12.10",
+                                                "Fedora 18 Live Security (lxde)"
                                             ]
                                     }
                                 ]
