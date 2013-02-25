@@ -29,7 +29,7 @@ try:
 except ImportError:
     import_error += "\nsubprocess"
 try:
-    from commands import getoutput
+    from commands import getoutput, getstatusoutput
 except ImportError:
     import_error += "\ncommands"
 
@@ -70,15 +70,46 @@ class install():
         elif reponse == gtk.RESPONSE_NO:
             return 0
 
-    def checkLib(self, lib):
-        try:
-            inspect.getfile(__import__(lib))
-        except ImportError:
-            return False
-        else:
-            return True
+    def msgbox(self, message, type_msg=0):
+        about = gtk.MessageDialog(self.fenetre,
+                                  gtk.DIALOG_MODAL,
+                                  gtk.MESSAGE_WARNING if type_msg else gtk.MESSAGE_INFO,
+                                  gtk.BUTTONS_OK,
+                                  message)
+        about.run() # Affichage de la boite de message
+        about.destroy() # Destruction de la boite de message
 
-    def libInfos(self, widget, dependency):
+    def checkRoot(self):
+        # Vérification des permissions
+        for su_gui_cmd in ['gksu','kdesu','ktsuss','beesu','']:
+            if getoutput("which "+su_gui_cmd): break
+        if not su_gui_cmd:
+            gtk.gdk.threads_enter()
+            self.msgbox("Un des outils suivant est nécessaire pour acquérir les droits administrateur, veuillez en installer un :\n\ngksu\nkdesu\nktsuss\nbeesu",1)
+            gtk.gdk.threads_leave()
+        else:
+            getstatusoutput(su_gui_cmd+" 'killall airodump-ng'")
+
+    def checkLib(self, lib, type):
+        if type == 'cmd':
+            try:
+                checkRes = getoutput("which " + lib)
+            except ImportError:
+                return False
+            else:
+                if checkRes and not "no %s" % lib in checkRes:
+                    return True
+                else:
+                    return False
+        elif type == 'lib':
+            try:
+                inspect.getfile(__import__(lib))
+            except ImportError:
+                return False
+            else:
+                return True
+
+    def libInfos(self, widget, dependency, data):
         print "\nLibrairie : %s" % dependency['name']
         if dependency.has_key('homepage'):
             for homepage in dependency['homepage']:
@@ -109,9 +140,14 @@ class install():
                     else:
                         installType = [install['type']]
 
-                    if self.checkLib(dependency['name']):
+                    if self.checkLib(dependency['name'], dependency['type']):
+                        for key in self.btns.keys():
+                            if dependency['name'] in key:
+                                self.btns[key].child.set_text('<i><span foreground="green">%s</span></i>' % dependency['name'])
+                                self.btns[key].child.set_use_markup(True)
                         print '--> déjà installé'
                         return True
+
 
                     packageInstallers = ['apt-get install',
                                          'yum install',
@@ -131,7 +167,11 @@ class install():
 
                     i = 0
                     for x in installType:
-                        if i and self.checkLib(dependency['name']):
+                        if i and self.checkLib(dependency['name'], dependency['type']):
+                            for key in self.btns.keys():
+                                if dependency['name'] in key:
+                                    self.btns[key].child.set_text('<i><span foreground="green">%s</span></i>' % dependency['name'])
+                                    self.btns[key].child.set_use_markup(True)
                             print '--> déjà installé'
                             return True
 
@@ -208,31 +248,6 @@ class install():
         else:
             print "Type d'installation : non précisée"
             return False
-
-    def checkSelection(self, data):
-        for checkbtn in self.checkbtns.keys():
-            #TODO read modules.json & generate ./fktb in ~
-            for category in data.keys():
-                # print category
-                i=0
-                for module in data[category]:
-                    # print '    ', module['name']
-                    if module['name'] == checkbtn and not self.checkbtns[module['name']].state:
-                        data[category].pop(i)
-                    i+=1
-        try:
-            modules_path = os.path.join(CONFIG_PATH, 'modules.json')
-            if not os.path.exists(CONFIG_PATH):
-                os.makedirs(CONFIG_PATH)
-            if not (os.path.exists(modules_path) and os.path.isfile(modules_path)):
-                with open(modules_path, 'wb') as modules_file:
-                    modules_file.write('')
-            simplejson.dump(data, open(modules_path, 'wb'), ensure_ascii=False)
-        except Exception as err:
-            print "Erreur : %s" % err
-        else:
-            print "Création du fichier : %s" % modules_path
-        exit()
 
     def __init__(self):
         self.fenetre = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -333,14 +348,14 @@ class install():
                         self.vboxs[category].pack_start(self.hboxs['%s - %s' % (dependency['name'], module['name'])], fill=False)
                         self.hboxs['%s - %s' % (dependency['name'], module['name'])].show()
 
-                        if self.checkLib(dependency['name']):
+                        if self.checkLib(dependency['name'], dependency['type']):
                             self.btns['%s - %s' % (dependency['name'], module['name'])] = gtk.Button('<i><span foreground="green">%s</span></i>' % dependency['name'])
                         else:
                             self.btns['%s - %s' % (dependency['name'], module['name'])] = gtk.Button('<i><span foreground="red">%s</span></i>' % dependency['name'])
 
                         self.btns['%s - %s' % (dependency['name'], module['name'])].child.set_use_markup(True)
                         self.btns['%s - %s' % (dependency['name'], module['name'])].set_size_request(int(self.btns['%s - %s' % (dependency['name'], module['name'])].size_request()[0]*1.2),self.btns['%s - %s' % (dependency['name'], module['name'])].size_request()[1])
-                        self.btns['%s - %s' % (dependency['name'], module['name'])].connect("clicked", self.libInfos, dependency)
+                        self.btns['%s - %s' % (dependency['name'], module['name'])].connect("clicked", self.libInfos, dependency, data)
 
                         self.hboxs['%s - %s' % (dependency['name'], module['name'])].pack_start(self.btns['%s - %s' % (dependency['name'], module['name'])], False, False, 0)
                         self.btns['%s - %s' % (dependency['name'], module['name'])].show()
@@ -357,7 +372,7 @@ class install():
         # self.self.btn_modules
         self.btn_modules = gtk.Button("ok")
         self.btn_modules.set_size_request(int(self.btn_modules.size_request()[0]*1.2),self.btn_modules.size_request()[1])
-        self.btn_modules.connect("clicked", lambda e: self.checkSelection(data))
+        self.btn_modules.connect("clicked", lambda e: exit())
         self.boite2_modules.pack_start(self.btn_modules, False, False, 0)
         self.btn_modules.show()
 

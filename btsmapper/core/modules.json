@@ -2,11 +2,90 @@
     "Python BTS Mapper":
         [
             {
+                "name": "Nokia 3310",
+                "dependency":
+                    [
+                        {
+                            "name": "gammu",
+                            "type": "cmd",
+                            "homepage":
+                                [
+                                    "http://fr.wammu.eu/gammu/"
+                                ],
+                            "doc":
+                                [
+                                    "http://fr.wammu.eu/docs/manual/"
+                                ],
+                            "install":
+                                [
+                                    {
+                                        "type": "apt-get",
+                                        "target": "gammu",
+                                        "tested":
+                                            [
+                                                "ubuntu 12.10",
+                                                "xubuntu 12.10"
+                                            ]
+                                    },
+                                    {
+                                        "type": "yum",
+                                        "target": "gammu",
+                                        "tested":
+                                            [
+                                                "Fedora 18 Live Security (lxde)"
+                                            ]
+                                    },
+                                    {
+                                        "type": "source",
+                                        "target": "https://github.com/gammu/gammu/tarball/master",
+                                        "tested":
+                                            [
+                                                ""
+                                            ]
+                                    }
+                                ]
+                        },
+                        {
+                            "name": "vte",
+                            "type": "lib",
+                            "homepage":
+                                [
+                                    "http://developer.gnome.org/vte/"
+                                ],
+                            "doc":
+                                [
+                                    "http://developer.gnome.org/vte/"
+                                ],
+                            "install":
+                                [
+                                    {
+                                        "type": "apt-get",
+                                        "target": "python-vte",
+                                        "tested":
+                                            [
+                                                "ubuntu 12.10",
+                                                "xubuntu 12.10"
+                                            ]
+                                    },
+                                    {
+                                        "type": "yum",
+                                        "target": "python-vte",
+                                        "tested":
+                                            [
+                                                "Fedora 18 Live Security (lxde)"
+                                            ]
+                                    }
+                                ]
+                        }
+                    ]
+            },
+            {
                 "name": "Carthographie",
                 "dependency":
                     [
                         {
                             "name": "osmgpsmap",
+                            "type": "lib",
                             "homepage":
                                 [
                                     "http://nzjrs.github.com/osm-gps-map/"
@@ -36,7 +115,7 @@
                                     },
                                     {
                                         "type": "source",
-                                        "target": "http://github.com/nzjrs/osm-gps-map/tarball/master",
+                                        "target": "httpS://github.com/nzjrs/osm-gps-map/tarball/master",
                                         "tested":
                                             [
                                                 ""

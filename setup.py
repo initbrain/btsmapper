@@ -53,7 +53,9 @@ setup(
                     'btsmapper/images/sfr.png',
                     'btsmapper/images/orange.png']),
         ('btsmapper/core/', ['btsmapper/core/modules.json',
-                             'btsmapper/core/nhm5_587.txt'])
+                             'btsmapper/core/nhm5_587.txt',
+                             'btsmapper/core/gammurc',
+                             'btsmapper/core/results.db'])
     ]
 )
 

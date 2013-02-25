@@ -1,0 +1,9 @@
+[gammu]
+
+port = /dev/ttyUSB0
+model = 3310
+connection = fbus
+synchronizetime = yes
+logfile = nothing
+logformat = nothing
+use_locking = yes
