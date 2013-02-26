@@ -84,10 +84,10 @@ class UI(gtk.Window):
 
     def msgbox(self, message, type_msg=0):
         msgb = gtk.MessageDialog(None,
-                                  gtk.DIALOG_MODAL,
-                                  gtk.MESSAGE_WARNING if type_msg else gtk.MESSAGE_INFO,
-                                  gtk.BUTTONS_OK,
-                                  message)
+                                 gtk.DIALOG_MODAL,
+                                 gtk.MESSAGE_WARNING if type_msg else gtk.MESSAGE_INFO,
+                                 gtk.BUTTONS_OK,
+                                 message)
         msgb.run() # Affichage de la boite de message
         msgb.destroy() # Destruction de la boite de message
 
@@ -295,7 +295,7 @@ class UI(gtk.Window):
                             else:
                                 # Sinon opérateur INCONNU
                                 pb = gtk.gdk.pixbuf_new_from_file_at_size("%s/images/bts.png" % BTSMAPPER_PATH, 24,24)
-                            # Ajout sur la map
+                                # Ajout sur la map
                             self.osm.image_add(x.lon, x.lat, pb)
                             # Centrer et zommer sur bts
                             # Self.osm.set_center_and_zoom(lon, lat, 16)
@@ -348,6 +348,24 @@ class UI(gtk.Window):
                 self.msgbox("Gammu process still running",
                             type_msg=1)
                 # gtk.gdk.threads_leave()
+                # try:
+                #     res = getoutput("killall gammu")
+                # except:
+                #     # gtk.gdk.threads_enter()
+                #     self.msgbox("Gammu process still running",
+                #                 type_msg=1)
+                #     # gtk.gdk.threads_leave()
+                # else:
+                #     if not 'gammu:' in res:
+                #         # gtk.gdk.threads_enter()
+                #         self.msgbox("Gammu process killed",
+                #                     type_msg=0)
+                #         # gtk.gdk.threads_leave()
+                #     else:
+                #     # gtk.gdk.threads_enter()
+                #         self.msgbox("Gammu process not found",
+                #                     type_msg=1)
+                #         # gtk.gdk.threads_leave()
 
     def cache_clicked(self, button):
         bbox = self.osm.get_bbox()
