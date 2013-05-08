@@ -40,7 +40,7 @@ setup(
         'console_scripts': [
             'btsmapper_bootstrap = btsmapper.interface.install:main',
             'btsmapper = btsmapper.interface.gui:main'
-            #'fktb-cli = fktb.interface.cli:main'
+            #'btsmapper_cli = btsmapper.interface.cli:main'
         ]
     },
     data_files=[
