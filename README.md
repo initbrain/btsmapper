@@ -31,3 +31,5 @@ Python BTS Mapper
     To use the tool, launch it with administrator privileges:
 
         # btsmapper
+
+    NB: the full screen keyboard shortcut is **F11**.

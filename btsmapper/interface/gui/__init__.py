@@ -59,7 +59,7 @@ gobject.type_register(DummyLayer)
 
 class UI(gtk.Window):
     def quitDialog(self, widget, data):
-        if self.yesnoDialog("Do you really want to exit\nFree-knowledge Python BTS Mapper ?"):
+        if self.yesnoDialog("Do you really want to exit\nPython BTS Mapper ?"):
             delete()
         else:
             return 1
@@ -112,6 +112,8 @@ class UI(gtk.Window):
         self.fenetre.connect("delete_event", self.quitDialog)    # Alerte de fermeture
         self.fenetre.connect('key-press-event', lambda o, event: event.keyval == gtk.keysyms.F11 and self.toggle_fullscreen())
         self.fenetre.show()
+
+        self.fullscreen = 0
 
         self.vbox = gtk.VBox(False, 0)
         self.fenetre.add(self.vbox)
@@ -380,6 +382,14 @@ class UI(gtk.Window):
         if event.button == 3:
             pb = gtk.gdk.pixbuf_new_from_file_at_size ("%s/images/poi.png" % BTSMAPPER_PATH, 24,24)
             self.osm.image_add(lat,lon,pb)
+
+    def toggle_fullscreen(self):
+        if self.fullscreen:
+            self.fenetre.unfullscreen()
+            self.fullscreen+=1
+        else:
+            self.fenetre.fullscreen()
+            self.fullscreen-=1
 
 def delete():
     """Gestion des evenements de fermeture"""
