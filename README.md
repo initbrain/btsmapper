@@ -13,7 +13,7 @@ Python BTS Mapper
 
 *   **Installation ($: user, #: root):**
 
-    We have developed our own installer.
+    We have included our own installation wizard.
     It require the installation of the following dependencies:
 
         # apt-get install git python-setuptools python-pip

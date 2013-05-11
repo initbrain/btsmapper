@@ -48,7 +48,7 @@ from btsmapper.core.constants import BTSMAPPER_PATH, CONFIG_PATH
 class install():
     def quitDialog(self, widget, event=None):
         if widget == self.btn_modules:
-            self.msgbox("Lancez l'outil avec root :\nbtsmapper", 0)
+            self.msgbox("To use 'btsmapper', launch it with administrator privileges", 0)
             exit()
         else:
             if self.yesnoDialog("Voulez-vous vraiment quitter\nl'assistant d'installation ?"):
@@ -103,30 +103,30 @@ class install():
                 return True
 
     def installDep(self, widget, dependency, data):
-        print "\nDépendance : %s" % dependency['name']
+        print "\nDependency : %s" % dependency['name']
         if dependency.has_key('homepage'):
             for homepage in dependency['homepage']:
-                print "Site web : %s" % (homepage if homepage else "non précisé")
+                print "Website : %s" % (homepage if homepage else "unspecified")
         else:
-            print "Site web : non précisé"
+            print "Website : unspecified"
 
         if dependency.has_key('doc'):
             for doc in dependency['doc']:
-                print "Documentation : %s" % (doc if doc else "non précisée")
+                print "Documentation : %s" % (doc if doc else "unspecified")
         else:
-            print "Documentation : non précisée"
+            print "Documentation : unspecified"
 
         if dependency.has_key('install'):
             for install in dependency['install']:
                 if install['type'] and install['target']:
-                    print "Type d'installation : %s" % install['type']
-                    print "Cible : %s" % install['target']
+                    print "Installation type : %s" % install['type']
+                    print "Target : %s" % install['target']
 
                     if install.has_key('tested'):
                         for test in install['tested']:
-                            print "Testée avec : %s" % test if test else "Non testée"
+                            print "Tested with : %s" % test if test else "Non testée"
                     else:
-                        print "Non testée ..."
+                        print "Not tested ..."
 
                     if install['type'] and len(install['type'][0]) != 1:
                         installType = install['type']
@@ -138,8 +138,8 @@ class install():
                             if dependency['name'] in key:
                                 self.btns[key].child.set_text(dependency['name'])
                                 self.btns[key].child.set_use_markup(False)
-                        print '--> déjà installé'
-                        self.msgbox("%s est déjà installé" % dependency['name'], 0)
+                        print '--> already installed'
+                        self.msgbox("%s is already installed" % dependency['name'], 0)
                         return True
 
                     packageInstallers = ['apt-get install',
@@ -154,10 +154,10 @@ class install():
                         if checkRes and not "no %s" % packageInstaller in checkRes:
                             break
                     if packageInstaller:
-                        print "--> votre gestionnaire de paquet est : %s" % packageInstaller
+                        print "--> your package manager is : %s" % packageInstaller
                     else:
-                        print "--> impossible de déterminer votre gestionnaire de paquet"
-                        self.msgbox("Impossible de déterminer\nvotre gestionnaire de paquet", 1)
+                        print "--> unable to determine your package manager"
+                        self.msgbox("Unable to determine your package manager", 1)
 
                     i = 0
                     for x in installType:
@@ -166,7 +166,7 @@ class install():
                         if target and len(target[0]) == 1:
                             target = [target]
 
-                        print "\nInstallation de '%s' (%s)" % (' '.join(target), x)
+                        print "\nInstallation of '%s' (%s)" % (' '.join(target), x)
 
                         if x == 'easy_install':
                             cmd = ['easy_install'] + target
@@ -180,7 +180,7 @@ class install():
                                 if out:
                                     print '#', out #TODO couleur normale
                                     if "No local packages or download links found" in out:
-                                        print "=> Paquet introuvable via easy_install" #TODO erreur
+                                        print "=> Package not found with easy_install" #TODO erreur
                                 elif self.eiProcess.poll() != None:
                                     break
 
@@ -196,10 +196,10 @@ class install():
                                     break
 
                             if not packageInstaller:
-                                print "--> impossible de déterminer votre alias pip"
-                                self.msgbox("Impossible de déterminer votre alias pip", 1)
+                                print "--> unable to determine your pip alias"
+                                self.msgbox("Unable to determine your pip alias", 1)
                             else:
-                                print "--> votre alias pip est : %s" % packageInstaller
+                                print "--> Your pip alias is : %s" % packageInstaller
 
                                 cmd = [packageInstaller, 'install'] + target
                                 print "[+] %s" % ' '.join(cmd)
@@ -212,8 +212,8 @@ class install():
                                     if out:
                                         print '#', out #TODO couleur normale
                                         if "No distributions at all found" in out:
-                                            print "=> Paquet introuvable via pip"
-                                            self.msgbox("Paquet introuvable via pip", 1)
+                                            print "=> Package not found with pip"
+                                            self.msgbox("Package not found with pip", 1)
                                     elif self.pipProcess.poll() != None:
                                         break
 
@@ -226,8 +226,8 @@ class install():
                                 if err:
                                     print '@', err #TODO couleur rouge ?
                                     if "Impossible de trouver le paquet" in err:
-                                        print "=> Paquet introuvable via apt-get"
-                                        self.msgbox("Paquet introuvable via apt-get", 1)
+                                        print "=> Package not found with apt-get"
+                                        self.msgbox("Package not found with apt-get", 1)
                                 out = self.agProcess.stdout.readline().rstrip('\n')
                                 if out:
                                     print '#', out #TODO couleur normale
@@ -243,8 +243,8 @@ class install():
                                 if err:
                                     print '@', err #TODO couleur rouge ?
                                     if "Aucun paquet" in err:
-                                        print "=> Paquet introuvable via yum"
-                                        self.msgbox("Paquet introuvable via yum", 1)
+                                        print "=> Package not found with yum"
+                                        self.msgbox("Package not found with yum", 1)
                                 out = self.agProcess.stdout.readline().rstrip('\n')
                                 if out:
                                     print '#', out #TODO couleur normale
@@ -260,28 +260,28 @@ class install():
                                 elif self.btns[key].child.get_use_markup():
                                     missingDep += 1
                             if not missingDep:
-                                self.progressbar_modules.set_text("rien à installer, vous pouvez continuer")
+                                self.progressbar_modules.set_text("nothing to install, you can continue")
                                 self.btn_modules.set_sensitive(True)
                             else:
-                                self.progressbar_modules.set_text("%d dépendance%s à installer" % (missingDep, 's' if missingDep > 1 else ''))
-                            print '--> installé'
-                            self.msgbox("%s installé" % dependency['name'], 0)
+                                self.progressbar_modules.set_text("%d dependenc%s to install" % (missingDep, 'ies' if missingDep > 1 else 'y'))
+                            print '--> installed'
+                            self.msgbox("%s installed" % dependency['name'], 0)
                             return True
                         else:
                             i += 1
                 else:
-                    print "Type d'installation non précisée"
-                    self.msgbox("Type d'installation non précisée", 1)
+                    print "Installation type : unspecified"
+                    self.msgbox("Installation type : unspecified", 1)
                     return False
         else:
-            print "Type d'installation : non précisée"
-            self.msgbox("Type d'installation non précisée", 1)
+            print "Installation type : unspecified"
+            self.msgbox("Installation type : unspecified", 1)
             return False
 
     def __init__(self):
         self.fenetre = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.fenetre.set_resizable(False) # Interdire le redimensionnement de la fenêtre
-        self.fenetre.set_title("Installation Free-knowledge Python BTS Mapper") # Titre de la fenêtre
+        self.fenetre.set_title("btsmapper - Installation Wizard") # Titre de la fenêtre
         #self.fenetre.set_decorated(False) # Cacher les contours de la fenêtre
         self.fenetre.set_icon_from_file("%s/images/icone.png" % BTSMAPPER_PATH) # Spécifier une icône
         self.fenetre.set_position(gtk.WIN_POS_CENTER) # Centrer la fenêtre au lancement
@@ -314,7 +314,7 @@ class install():
         self.boite_modules.show()
 
         # label1_modules
-        label1_modules = gtk.Label("Installer les dépendances :")
+        label1_modules = gtk.Label("Install dependencies :")
         label1_modules.set_alignment(0, 0)
         self.boite_modules.pack_start(label1_modules, True, True, 0)
         label1_modules.show()
@@ -367,9 +367,8 @@ class install():
         self.expanders = dict()
         self.vboxs = dict()
         self.hboxs = dict()
-        self.checkbtns = dict()
-        self.btns = dict()
         self.labels = dict()
+        self.btns = dict()
         for category in data.keys():
             self.expanders[category] = gtk.Expander("<b>%s</b>" % category)
             self.expanders[category].props.use_markup = True
@@ -383,10 +382,12 @@ class install():
 
             for module in data[category]:
                 i+=1
-                self.checkbtns[module['name']] = gtk.CheckButton(module['name'])
-                self.vboxs[category].pack_start(self.checkbtns[module['name']], False, False, 0)
-                self.checkbtns[module['name']].set_active(True)
-                self.checkbtns[module['name']].show()
+                self.labels[module['name']] = gtk.Label('%s :' % module['name'])
+                self.vboxs[category].pack_start(self.labels[module['name']], False, False, 0)
+                # self.labels[module['name']].set_active(True)
+                # self.labels[module['name']].set_sensitive(False)
+                self.labels[module['name']].set_alignment(0, 0.5)
+                self.labels[module['name']].show()
 
                 for dependency in module['dependency']:
                     if dependency['name']:
@@ -409,11 +410,11 @@ class install():
 
         if missingDep:
             self.btn_modules.set_sensitive(False)
-            self.progressbar_modules.set_text("%d dépendance%s à installer" % (missingDep, 's' if missingDep > 1 else ''))
+            self.progressbar_modules.set_text("%d dependenc%s to install" % (missingDep, 'ies' if missingDep > 1 else 'y'))
         else:
-            self.progressbar_modules.set_text("rien à installer, vous pouvez continuer")
+            self.progressbar_modules.set_text("nothing to install, you can continue")
 
-            # self.separateur_modules
+        # self.separateur_modules
         self.separateur_modules = gtk.HSeparator()
         self.boite_modules.pack_start(self.separateur_modules, False, False, 0)
         self.separateur_modules.show()
@@ -431,11 +432,7 @@ class install():
         gtk.main()
 
 def main():
-    """
-    test
-
-    """
-    print "\nLancement de l'assistant d'installation ..."
+    print "\nLaunching the installation wizard ..."
     install()
 
 if __name__ == "__main__":
