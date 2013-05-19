@@ -42,6 +42,6 @@ Python BTS Mapper
     * Mobile phone Nokia 3310 (900/1800mhz) or 3390 (1900mhz)
     * ​F-BUS and M2BUS auto switching USB data cable
 
-[![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia1th.png)](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia1.png)
-[![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia2th.png)](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia2.png)
-[![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia3th.png)](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia3.png)
+    [![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia1th.png)](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia1.png)
+    [![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia2th.png)](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia2.png)
+    [![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia3th.png)](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia3.png)
