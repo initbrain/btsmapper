@@ -29,7 +29,7 @@ try:
         print "[!] Killing previous gammu process"
     print "[+] Checking connectivity (skip with 'kill gammu' button)"
     resIdentify = getoutput("gammu --identify")
-    if "n'existe pas" in resIdentify:
+    if "n'existe pas" in resIdentify: #TODO À vérifier avec un output anglais
         gtk.gdk.threads_enter()
         msgbox("Connectivity problem !\nCheck you're Nokia 3310 device", 1)
         gtk.gdk.threads_leave()

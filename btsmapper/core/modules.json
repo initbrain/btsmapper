@@ -2,7 +2,7 @@
     "Python BTS Mapper":
         [
             {
-                "name": "Nokia 3310",
+                "name": "Signal handling",
                 "dependency":
                     [
                         {
@@ -80,34 +80,9 @@
                     ]
             },
             {
-                "name": "Carthographie",
+                "name": "Carthography",
                 "dependency":
                     [
-                        {
-                            "name": "peewee",
-                            "type": "lib",
-                            "homepage":
-                                [
-                                    ""
-                                ],
-                            "doc":
-                                [
-                                    ""
-                                ],
-                            "install":
-                                [
-                                    {
-                                        "type": "pip",
-                                        "target": "peewee==2.0.4",
-                                        "tested":
-                                            [
-                                                "ubuntu 12.10",
-                                                "xubuntu 12.10",
-                                                "Fedora 18 Live Security (lxde)"
-                                            ]
-                                    }
-                                ]
-                        },
                         {
                             "name": "osmgpsmap",
                             "type": "lib",
@@ -144,6 +119,37 @@
                                         "tested":
                                             [
                                                 ""
+                                            ]
+                                    }
+                                ]
+                        }
+                    ]
+            },
+            {
+                "name": "Database",
+                "dependency":
+                    [
+                        {
+                            "name": "peewee",
+                            "type": "lib",
+                            "homepage":
+                                [
+                                    ""
+                                ],
+                            "doc":
+                                [
+                                    ""
+                                ],
+                            "install":
+                                [
+                                    {
+                                        "type": "pip",
+                                        "target": "peewee==2.0.4",
+                                        "tested":
+                                            [
+                                                "ubuntu 12.10",
+                                                "xubuntu 12.10",
+                                                "Fedora 18 Live Security (lxde)"
                                             ]
                                     }
                                 ]
