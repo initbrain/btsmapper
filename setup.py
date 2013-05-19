@@ -27,7 +27,7 @@ else:
 setup(
     name=NAME,
     version=VERSION,
-    description="Carthographie des antennes BTS via Nokia 3310 sur Open Street Map",
+    description="GSM Base Transceiver Stations Mapping tool via Nokia 3310 and Nokia Debug function",
     long_description=README,
     author=AUTHOR,
     author_email=CONTACT,
@@ -40,7 +40,7 @@ setup(
         'console_scripts': [
             'btsmapper_bootstrap = btsmapper.interface.install:main',
             'btsmapper = btsmapper.interface.gui:main'
-            #'btsmapper_cli = btsmapper.interface.cli:main'
+            #'btsmapper_cli = btsmapper.interface.cli:main' #TODO
         ]
     },
     data_files=[

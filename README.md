@@ -1,4 +1,5 @@
 ---
+![GNU GPL v3](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/logo_gpl_v3.png)
 [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0.txt)
 
 ---
@@ -33,3 +34,12 @@ Python BTS Mapper
         # btsmapper
 
     NB: the full screen keyboard shortcut is **F11**.
+
+
+*   **Hardware needed:**
+
+    * Mobile phone Nokia 3310 (900/1800mhz) or 3390 (1900mhz)
+    * ​F-BUS and M2BUS auto switching USB data cable
+
+    ![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia1.png) ![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia2.png) ![Python BTS Mapper](https://raw.github.com/initbrain/btsmapper/master/btsmapper/images/nokia3.png)
+
