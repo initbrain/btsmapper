@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from time import mktime, localtime, sleep
-
-from btsmapper.core.constants import BTSMAPPER_PATH
-
 from peewee import SqliteDatabase, Model, RawQuery
 from peewee import CharField, IntegerField, FloatField, BooleanField
-from peewee import ForeignKeyField
+
+from btsmapper.core.constants import BTSMAPPER_PATH
 
 
 class BTSdb(SqliteDatabase):
@@ -32,8 +30,8 @@ class BTS(BaseModel):
     BTS model.
     """
     op = CharField(max_length=256, null=True)
-    lon = FloatField(null=True)
     lat = FloatField(null=True)
+    lon = FloatField(null=True)
     cid = CharField(max_length=256, null=True)
     mcc = CharField(max_length=256, null=True)
     mnc = CharField(max_length=256, null=True)
@@ -42,13 +40,7 @@ class BTS(BaseModel):
     mapped = BooleanField(default=False)
 
     def __str__(self):
-        return "<BTS '%s (%f:%f)'>" % (self.op, self.lon, self.lat)
-
-    # def del_emails(self):
-    #     deleted = 0
-    #     for email in self.emails:
-    #         deleted += email.delete_instance()
-    #     return deleted
+        return "<BTS '%s (%f:%f)'>" % (self.op, self.lat, self.lon)
 
     @classmethod
     def get_already_mapped(cls):
@@ -57,7 +49,7 @@ class BTS(BaseModel):
                 cls.mapped == True
             )
         except BTS.DoesNotExist as err:
-            return False #sleep(3)
+            return False
         else:
             return query
 
@@ -75,12 +67,12 @@ class BTS(BaseModel):
                 return query
 
     @classmethod
-    def if_already_mapped(cls, lon, lat):
+    def if_already_mapped(cls, lat, lon):
         while True:
             try:
                 query = cls.select().where(
-                    cls.lon == lon,
                     cls.lat == lat,
+                    cls.lon == lon,
                     cls.mapped == True
                 ).get()
             except BTS.DoesNotExist as err:
@@ -88,24 +80,5 @@ class BTS(BaseModel):
             else:
                 return query
 
-    # @classmethod
-    # def get_by_id(cls, id):
-    #     return cls.select().where(
-    #         cls.id == id
-    #     ).get()
-    #
-    # @classmethod
-    # def del_by_url(cls, url):
-    #     feed = cls.get_by_url(url)
-    #     del_emails = feed.emails.count()
-    #     del_feeds = feed.delete_instance(recursive=True)
-    #     return del_feeds, del_emails
-    #
-    # @classmethod
-    # def del_by_id(cls, id):
-    #     feed = cls.get_by_id(id)
-    #     del_emails = feed.emails.count()
-    #     del_feeds = feed.delete_instance(recursive=True)
-    #     return del_feeds, del_emails
 
 BTS.create_table(fail_silently=True)
