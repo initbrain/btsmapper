@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-# TODO Useless here...
-import_error = ''
-
 import os
 import re
 import gtk.gdk
@@ -16,6 +13,7 @@ from httplib import HTTP
 
 from btsmapper.core.db import BTS
 from btsmapper.core.constants import BTSMAPPER_PATH
+
 
 def msgbox(message, type_msg=0):
     about = gtk.MessageDialog(None,

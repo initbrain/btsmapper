@@ -23,6 +23,7 @@ except ImportError:
 from btsmapper.core.db import BTS
 from btsmapper.core.constants import BTSMAPPER_PATH
 
+
 gobject.threads_init()
 gtk.gdk.threads_init()
 
@@ -33,7 +34,6 @@ sys.path.insert(0, libdir)
 
 import osmgpsmap
 print "using library: %s (version %s)" % (osmgpsmap.__file__, osmgpsmap.__version__)
-
 #assert osmgpsmap.__version__ == "0.7.3"
 
 
@@ -249,7 +249,7 @@ class UI(gtk.Window):
                     break
             if not su_gui_cmd:
                 # gtk.gdk.threads_enter()
-                self.msg_dialog("Un des outils suivant est nécessaire pour acquérir les droits administrateur, veuillez en installer un :\n" + \
+                self.msg_dialog("One of the following tools is required to gain administrator privileges :\n" + \
                             "\n" + \
                             "gksu\n" + \
                             "kdesu\n" + \
@@ -322,7 +322,7 @@ class UI(gtk.Window):
                     break
             if not su_gui_cmd:
                 # gtk.gdk.threads_enter()
-                self.msg_dialog("One of the following tools is required to gain administrator privileges, please install :\n"
+                self.msg_dialog("One of the following tools is required to gain administrator privileges :\n"
                                 "\n" + \
                                 "gksu\n" + \
                                 "kdesu\n" + \
